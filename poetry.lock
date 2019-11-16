@@ -132,10 +132,14 @@ description = "A flake8 plugin that helps you write tidier imports."
 name = "flake8-tidy-imports"
 optional = false
 python-versions = ">=3.5"
-version = "3.0.0"
+version = "3.1.0"
 
 [package.dependencies]
-flake8 = ">=3.0,<3.2.0 || >3.2.0"
+flake8 = ">=3.0,<3.2.0 || >3.2.0,<4"
+
+[package.dependencies.importlib-metadata]
+python = "<3.8"
+version = "*"
 
 [[package]]
 category = "dev"
@@ -165,7 +169,7 @@ description = "Python Git Library"
 name = "gitpython"
 optional = false
 python-versions = ">=3.0, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.0.4"
+version = "3.0.5"
 
 [package.dependencies]
 gitdb2 = ">=2.0.0"
@@ -189,11 +193,36 @@ version = "0.0.13"
 
 [[package]]
 category = "dev"
+description = "Read metadata from Python packages"
+marker = "python_version < \"3.8\""
+name = "importlib-metadata"
+optional = false
+python-versions = ">=2.7,!=3.0,!=3.1,!=3.2,!=3.3"
+version = "0.23"
+
+[package.dependencies]
+zipp = ">=0.5"
+
+[package.extras]
+docs = ["sphinx", "rst.linker"]
+testing = ["packaging", "importlib-resources"]
+
+[[package]]
+category = "dev"
 description = "McCabe checker, plugin for flake8"
 name = "mccabe"
 optional = false
 python-versions = "*"
 version = "0.6.1"
+
+[[package]]
+category = "dev"
+description = "More routines for operating on iterables, beyond itertools"
+marker = "python_version < \"3.8\""
+name = "more-itertools"
+optional = false
+python-versions = ">=3.4"
+version = "7.2.0"
 
 [[package]]
 category = "dev"
@@ -312,13 +341,13 @@ description = "The lightning-fast ASGI server."
 name = "uvicorn"
 optional = false
 python-versions = "*"
-version = "0.10.4"
+version = "0.10.8"
 
 [package.dependencies]
 click = ">=7.0.0,<8.0.0"
 h11 = ">=0.8.0,<0.9.0"
 httptools = "0.0.13"
-uvloop = "0.14.0rc2"
+uvloop = ">=0.14.0"
 websockets = ">=8.0.0,<9.0.0"
 
 [[package]]
@@ -328,7 +357,7 @@ marker = "sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_
 name = "uvloop"
 optional = false
 python-versions = "*"
-version = "0.14.0rc2"
+version = "0.14.0"
 
 [[package]]
 category = "main"
@@ -337,6 +366,22 @@ name = "websockets"
 optional = false
 python-versions = ">=3.6.1"
 version = "8.1"
+
+[[package]]
+category = "dev"
+description = "Backport of pathlib-compatible object wrapper for zip files"
+marker = "python_version < \"3.8\""
+name = "zipp"
+optional = false
+python-versions = ">=2.7"
+version = "0.6.0"
+
+[package.dependencies]
+more-itertools = "*"
+
+[package.extras]
+docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
+testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
 content-hash = "2e119235adfd861b46a0d6d73d94356bf8cf6e4eaee108311b383d6d5ca92187"
@@ -387,8 +432,8 @@ flake8-string-format = [
     {file = "flake8_string_format-0.2.3-py2.py3-none-any.whl", hash = "sha256:68ea72a1a5b75e7018cae44d14f32473c798cf73d75cbaed86c6a9a907b770b2"},
 ]
 flake8-tidy-imports = [
-    {file = "flake8-tidy-imports-3.0.0.tar.gz", hash = "sha256:a1f6a962ce4e733858187c1c047f98246e400af2e6bed90e780d888e439938da"},
-    {file = "flake8_tidy_imports-3.0.0-py3-none-any.whl", hash = "sha256:8460933e89449e2e9d1d38ef1c099ad713d67cd1d13f172b8d025030a9887a6f"},
+    {file = "flake8-tidy-imports-3.1.0.tar.gz", hash = "sha256:4b8a9e9a2fc4e8825d57e41315ff17ab046f31243ab0bda5527f973378e9892e"},
+    {file = "flake8_tidy_imports-3.1.0-py3-none-any.whl", hash = "sha256:1aae368561f79b5db7687e78015981a854fa4656158bf1f3f12c7ff597672140"},
 ]
 flake8-todo = [
     {file = "flake8-todo-0.7.tar.gz", hash = "sha256:6e4c5491ff838c06fe5a771b0e95ee15fc005ca57196011011280fc834a85915"},
@@ -398,8 +443,8 @@ gitdb2 = [
     {file = "gitdb2-2.0.6.tar.gz", hash = "sha256:1b6df1433567a51a4a9c1a5a0de977aa351a405cc56d7d35f3388bad1f630350"},
 ]
 gitpython = [
-    {file = "GitPython-3.0.4-py3-none-any.whl", hash = "sha256:a7d6bef0775f66ba47f25911d285bcd692ce9053837ff48a120c2b8cf3a71389"},
-    {file = "GitPython-3.0.4.tar.gz", hash = "sha256:3237caca1139d0a7aa072f6735f5fd2520de52195e0fa1d8b83a9b212a2498b2"},
+    {file = "GitPython-3.0.5-py3-none-any.whl", hash = "sha256:c155c6a2653593ccb300462f6ef533583a913e17857cfef8fc617c246b6dc245"},
+    {file = "GitPython-3.0.5.tar.gz", hash = "sha256:9c2398ffc3dcb3c40b27324b316f08a4f93ad646d5a6328cafbb871aa79f5e42"},
 ]
 h11 = [
     {file = "h11-0.8.1-py2.py3-none-any.whl", hash = "sha256:f2b1ca39bfed357d1f19ac732913d5f9faa54a5062eca7d2ec3a916cfb7ae4c7"},
@@ -408,9 +453,17 @@ h11 = [
 httptools = [
     {file = "httptools-0.0.13.tar.gz", hash = "sha256:e00cbd7ba01ff748e494248183abc6e153f49181169d8a3d41bb49132ca01dfc"},
 ]
+importlib-metadata = [
+    {file = "importlib_metadata-0.23-py2.py3-none-any.whl", hash = "sha256:d5f18a79777f3aa179c145737780282e27b508fc8fd688cb17c7a813e8bd39af"},
+    {file = "importlib_metadata-0.23.tar.gz", hash = "sha256:aa18d7378b00b40847790e7c27e11673d7fed219354109d0e7b9e5b25dc3ad26"},
+]
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
+]
+more-itertools = [
+    {file = "more-itertools-7.2.0.tar.gz", hash = "sha256:409cd48d4db7052af495b09dec721011634af3753ae1ef92d2b32f73a745f832"},
+    {file = "more_itertools-7.2.0-py3-none-any.whl", hash = "sha256:92b8c4b06dac4f0611c0729b2f2ede52b2e1bac1ab48f089c7ddc12e26bb60c4"},
 ]
 mypy = [
     {file = "mypy-0.740-cp35-cp35m-macosx_10_6_x86_64.whl", hash = "sha256:9371290aa2cad5ad133e4cdc43892778efd13293406f7340b9ffe99d5ec7c1d9"},
@@ -489,6 +542,11 @@ typed-ast = [
     {file = "typed_ast-1.4.0-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:d7c45933b1bdfaf9f36c579671fec15d25b06c8398f113dab64c18ed1adda01d"},
     {file = "typed_ast-1.4.0-cp37-cp37m-win32.whl", hash = "sha256:d755f03c1e4a51e9b24d899561fec4ccaf51f210d52abdf8c07ee2849b212a36"},
     {file = "typed_ast-1.4.0-cp37-cp37m-win_amd64.whl", hash = "sha256:2b907eb046d049bcd9892e3076c7a6456c93a25bebfe554e931620c90e6a25b0"},
+    {file = "typed_ast-1.4.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:fdc1c9bbf79510b76408840e009ed65958feba92a88833cdceecff93ae8fff66"},
+    {file = "typed_ast-1.4.0-cp38-cp38-manylinux1_i686.whl", hash = "sha256:7954560051331d003b4e2b3eb822d9dd2e376fa4f6d98fee32f452f52dd6ebb2"},
+    {file = "typed_ast-1.4.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:48e5b1e71f25cfdef98b013263a88d7145879fbb2d5185f2a0c79fa7ebbeae47"},
+    {file = "typed_ast-1.4.0-cp38-cp38-win32.whl", hash = "sha256:1170afa46a3799e18b4c977777ce137bb53c7485379d9706af8a59f2ea1aa161"},
+    {file = "typed_ast-1.4.0-cp38-cp38-win_amd64.whl", hash = "sha256:838997f4310012cf2e1ad3803bce2f3402e9ffb71ded61b5ee22617b3a7f6b6e"},
     {file = "typed_ast-1.4.0.tar.gz", hash = "sha256:66480f95b8167c9c5c5c87f32cf437d585937970f3fc24386f313a4c97b44e34"},
 ]
 typing-extensions = [
@@ -497,18 +555,18 @@ typing-extensions = [
     {file = "typing_extensions-3.7.4.1.tar.gz", hash = "sha256:091ecc894d5e908ac75209f10d5b4f118fbdb2eb1ede6a63544054bb1edb41f2"},
 ]
 uvicorn = [
-    {file = "uvicorn-0.10.4.tar.gz", hash = "sha256:a119aad7a904fca3722ae869410d15d2c4db2076cdf31b07078d8a22db9fd057"},
+    {file = "uvicorn-0.10.8.tar.gz", hash = "sha256:f4c34642618449f55e2bab8c6b22ff7615b520d2e7e23275be2ca894254327a3"},
 ]
 uvloop = [
-    {file = "uvloop-0.14.0rc2-cp35-cp35m-macosx_10_11_x86_64.whl", hash = "sha256:426074b9f5ee5865fcf0818252c16e72446e97578349d8b58ae3a666dacd8e38"},
-    {file = "uvloop-0.14.0rc2-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:2cffc419a627bc71285d9481c869228a84f56358e54b1f683bc1d4be19b66651"},
-    {file = "uvloop-0.14.0rc2-cp36-cp36m-macosx_10_11_x86_64.whl", hash = "sha256:aa10c0246425d8e7f494c639473427a35831222af5a2b0cb59eab251715a0d09"},
-    {file = "uvloop-0.14.0rc2-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:c0f69bc2e750b5370010c48c9825c6785487d60fa26025df6206f33b5027fc56"},
-    {file = "uvloop-0.14.0rc2-cp37-cp37m-macosx_10_11_x86_64.whl", hash = "sha256:117357af2b79d9183675adace1e1e1b3400be81fdd54cdc8feb6a54724f099ca"},
-    {file = "uvloop-0.14.0rc2-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:61b898682e3dc3673216f1c6678013d8f758304013d897f56d8bdc1d4ffe04e3"},
-    {file = "uvloop-0.14.0rc2-cp38-cp38-macosx_10_11_x86_64.whl", hash = "sha256:b5c5a51b09ef6e787faadb5bcbd88d117c5136a162c40629a0d98707ae05dc6b"},
-    {file = "uvloop-0.14.0rc2-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:667463aa2a2f6ed0a51a631f204a1ae9c71c8e49e2d8d82b3b9bf32833a7de83"},
-    {file = "uvloop-0.14.0rc2.tar.gz", hash = "sha256:7d557bf49991e3f2b70298b117fc09791eba0115af2198a5a385eab85c776130"},
+    {file = "uvloop-0.14.0-cp35-cp35m-macosx_10_11_x86_64.whl", hash = "sha256:08b109f0213af392150e2fe6f81d33261bb5ce968a288eb698aad4f46eb711bd"},
+    {file = "uvloop-0.14.0-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:4544dcf77d74f3a84f03dd6278174575c44c67d7165d4c42c71db3fdc3860726"},
+    {file = "uvloop-0.14.0-cp36-cp36m-macosx_10_11_x86_64.whl", hash = "sha256:b4f591aa4b3fa7f32fb51e2ee9fea1b495eb75b0b3c8d0ca52514ad675ae63f7"},
+    {file = "uvloop-0.14.0-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:f07909cd9fc08c52d294b1570bba92186181ca01fe3dc9ffba68955273dd7362"},
+    {file = "uvloop-0.14.0-cp37-cp37m-macosx_10_11_x86_64.whl", hash = "sha256:afd5513c0ae414ec71d24f6f123614a80f3d27ca655a4fcf6cabe50994cc1891"},
+    {file = "uvloop-0.14.0-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:e7514d7a48c063226b7d06617cbb12a14278d4323a065a8d46a7962686ce2e95"},
+    {file = "uvloop-0.14.0-cp38-cp38-macosx_10_11_x86_64.whl", hash = "sha256:bcac356d62edd330080aed082e78d4b580ff260a677508718f88016333e2c9c5"},
+    {file = "uvloop-0.14.0-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:4315d2ec3ca393dd5bc0b0089d23101276778c304d42faff5dc4579cb6caef09"},
+    {file = "uvloop-0.14.0.tar.gz", hash = "sha256:123ac9c0c7dd71464f58f1b4ee0bbd81285d96cdda8bc3519281b8973e3a461e"},
 ]
 websockets = [
     {file = "websockets-8.1-cp36-cp36m-macosx_10_6_intel.whl", hash = "sha256:3762791ab8b38948f0c4d281c8b2ddfa99b7e510e46bd8dfa942a5fff621068c"},
@@ -522,4 +580,8 @@ websockets = [
     {file = "websockets-8.1-cp37-cp37m-win32.whl", hash = "sha256:7ff46d441db78241f4c6c27b3868c9ae71473fe03341340d2dfdbe8d79310acc"},
     {file = "websockets-8.1-cp37-cp37m-win_amd64.whl", hash = "sha256:20891f0dddade307ffddf593c733a3fdb6b83e6f9eef85908113e628fa5a8308"},
     {file = "websockets-8.1.tar.gz", hash = "sha256:5c65d2da8c6bce0fca2528f69f44b2f977e06954c8512a952222cea50dad430f"},
+]
+zipp = [
+    {file = "zipp-0.6.0-py2.py3-none-any.whl", hash = "sha256:f06903e9f1f43b12d371004b4ac7b06ab39a44adc747266928ae6debfa7b3335"},
+    {file = "zipp-0.6.0.tar.gz", hash = "sha256:3718b1cbcd963c7d4c5511a8240812904164b7f381b647143a89d3b98f9bcd8e"},
 ]
