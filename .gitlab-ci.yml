@@ -1,0 +1,12 @@
+image: "python:3.7"
+
+before_script:
+  - python3 -m pip install flake8 flake8-bandit flake8-bugbear flake8-import-order flake8-string-format flake8-tidy-imports flake8-todo
+
+stages:
+  - Lint
+
+flake8:
+  stage: Lint
+  script:
+  - flake8
