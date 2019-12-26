@@ -201,7 +201,7 @@ logging.basicConfig(
     ])
 filename = os.environ.get("GRADER_CONFIG",
                           os.path.join(os.path.dirname(__file__),
-                          "ractf_grader.ini"))
+                                       "ractf_grader.ini"))
 try:
     with open(filename) as fp:
         config.read_file(fp)
