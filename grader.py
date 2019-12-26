@@ -236,7 +236,7 @@ class CodeGraderPlugin(FlagTypePlugin):
             print(False, "Invalid encoding")
             return False
         ans = grader.submit(problem_data['problem-id'], lang, src,
-                            problem_data['time-limit'], 
+                            problem_data['time-limit'],
                             problem_data['memory-limit'])
         print(ans)
         if not ans["success"]:
