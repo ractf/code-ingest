@@ -1,24 +1,24 @@
-# code taken from 
+# code taken from
 # https://github.com/DMOJ/judge-server/blob/fdc4fbcc59e021230c7d4336b3d0d54aba2884ea/dmoj/packet.py
 # and https://github.com/DMOJ/judge-server/blob/master/dmoj/utils/unicode.py
 
-from ...bases import FlagTypePlugin
 import configparser
-import os
 import json
+import os
 import logging
 import socket
 import ssl
 import struct
-import sys
 import threading
 import time
 import traceback
 import zlib
-import asyncio
 import base64
 
+from ...bases import FlagTypePlugin
+
 log = logging.getLogger(__name__)
+
 
 def utf8bytes(maybe_text):
     if maybe_text is None:
@@ -27,6 +27,7 @@ def utf8bytes(maybe_text):
         return maybe_text
     return maybe_text.encode('utf-8')
 
+
 def utf8text(maybe_bytes, errors='strict'):
     if maybe_bytes is None:
         return None
@@ -34,12 +35,12 @@ def utf8text(maybe_bytes, errors='strict'):
         return maybe_bytes
     return maybe_bytes.decode('utf-8', errors)
 
+
 class PacketManager:
     SIZE_PACK = struct.Struct('!I')
 
-    def __init__(self, port, key,
-                 secure = False, no_cert_check = False,
-                 cert_store = None):
+    def __init__(self, port, key, secure=False, no_cert_check=False,
+        cert_store=None):
         self.port = port
         self.key = key
         self._closed = False
@@ -71,11 +72,11 @@ class PacketManager:
         self.fallback = 4
         self.conn = None
         self.submissions_count = 0
-        threading.Thread(target=self._listen,daemon=True).start()
-        threading.Thread(target=self._keep_alive,daemon=True).start()
+        threading.Thread(target=self._listen, daemon=True).start()
+        threading.Thread(target=self._keep_alive, daemon=True).start()
 
     def _listen(self):
-        log.info('Listening on port %s',self.port)
+        log.info('Listening on port %s', self.port)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind(("0.0.0.0", self.port))
@@ -85,30 +86,31 @@ class PacketManager:
                 self.conn, addr = s.accept()
                 if self.ssl_context:
                     log.info('Starting TLS on: %s', self.port)
-                    self.conn = self.ssl_context.wrap_socket(self.conn, server_side=True)
+                    self.conn = self.ssl_context.wrap_socket(self.conn,
+                        server_side=True)
                 log.info('Waiting for handshake: %s', self.port)
                 self.input = self.conn.makefile('rb')
                 self.output = self.conn.makefile('wb', 0)
                 handshake = self._read_single()
-                self.problems=handshake['problems']
-                self.runtimes=handshake['executors']
-                self.judgeid=handshake['id']
-                key=handshake['key']
-                if key!=self.key:
+                self.problems = handshake['problems']
+                self.runtimes = handshake['executors']
+                self.judgeid = handshake['id']
+                key = handshake['key']
+                if key != self.key:
                     log.info('Invalid key')
                     self.conn.close()
                 else:
                     log.info('Judge online')
-                    self._send_packet({'name':'handshake-success'})
+                    self._send_packet({'name': 'handshake-success'})
                     return
-    
+
     def _keep_alive(self):
         while True:
             time.sleep(60)
             try:
-                self._send_packet({'name':'ping','when':time.time()})
+                self._send_packet({'name': 'ping', 'when': time.time()})
                 log.info(self._read_single())
-            except:
+            except Exception:
                 pass
 
     def __del__(self):
@@ -140,89 +142,102 @@ class PacketManager:
     def _send_packet(self, packet: dict):
         for k, v in packet.items():
             if isinstance(v, bytes):
-                # Make sure we don't have any garbage utf-8 from e.g. weird compilers
+                # Make sure we don't have any garbage utf-8 from 
+                # e.g. weird compilers
                 # *cough* fpc *cough* that could cause this routine to crash
                 # We cannot use utf8text because it may not be text.
                 packet[k] = v.decode('utf-8', 'replace')
 
         raw = zlib.compress(utf8bytes(json.dumps(packet)))
         with self._lock:
-            self.output.writelines((PacketManager.SIZE_PACK.pack(len(raw)), raw))
-    
-    def submit(self,problem_id,language,source,time_limit,memory_limit):
-        self.submissions_count+=1
+            self.output.writelines((PacketManager.SIZE_PACK.pack(len(raw)),
+                raw))
+
+    def submit(self, problem_id, language, source, time_limit, memory_limit):
+        self.submissions_count += 1
         packet = {
-            'name':'submission-request',
-            'submission-id':self.submissions_count,
-            'problem-id':problem_id,
-            'language':language,
-            'source':source,
-            'time-limit':time_limit,
-            'memory-limit':memory_limit,
-            'short-circuit':False,
-            'meta':False,
+            'name': 'submission-request',
+            'submission-id': self.submissions_count,
+            'problem-id': problem_id,
+            'language': language,
+            'source': source,
+            'time-limit': time_limit,
+            'memory-limit': memory_limit,
+            'short-circuit': False,
+            'meta': False,
         }
         self._send_packet(packet)
         try:
             cases = []
             while True:
-                p=self._read_single()
-                #log.info(p)
-                if p['submission-id']!=self.submissions_count:
+                p = self._read_single()
+                # log.info(p)
+                if p['submission-id'] != self.submissions_count:
                     continue
-                if p['name']=='test-case-status':
-                    cases+=p['cases']
-                elif p['name']=='grading-end':
-                    return {"success":True,"data":cases}
-                elif p['name']=='compile-error':
-                    return {"success":False,"data":p['log']}
-                elif p['name']=='internal-error':
-                    return {"success":False,"data":"Internal Error (invalid language?)"} #not disclosed
+                if p['name'] == 'test-case-status':
+                    cases += p['cases']
+                elif p['name'] == 'grading-end':
+                    return {"success": True, "data": cases}
+                elif p['name'] == 'compile-error':
+                    return {"success": False, "data": p['log']}
+                elif p['name'] == 'internal-error':
+                    return {
+                        "success": False,
+                        "data": "Internal Error (invalid language?)"
+                    }
         except Exception:  # connection reset by peer
             traceback.print_exc()
-            raise SystemExit(1) 
+            raise SystemExit(1)
+
 
 config = configparser.ConfigParser()
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s",
+    format="%(asctime)s [%(threadName)-12.12s]" \
+    " [%(levelname)-5.5s]  %(message)s",
     handlers=[
-        #logging.FileHandler("test.log"),
+        # logging.FileHandler("test.log"),
         logging.StreamHandler()
-])
-filename = os.environ.get("GRADER_CONFIG", os.path.join(os.path.dirname(__file__),"ractf_grader.ini"))
+    ])
+filename = os.environ.get("GRADER_CONFIG",
+    os.path.join(os.path.dirname(__file__), "ractf_grader.ini"))
 try:
     with open(filename) as fp:
         config.read_file(fp)
 except FileNotFoundError as e:
     raise ValueError(
-        "Couldn't find config file {0} - consider setting env-var GRADER_CONFIG to point to the config file".format(
+        "Couldn't find config file {0} - consider setting env-var " \
+        "GRADER_CONFIG to point to the config file".format(
             filename
         )
     ) from e
 port = config.getint("grader", "port")
 key = config.get("grader", "key")
-grader = PacketManager(port,key)
+grader = PacketManager(port, key)
+
 
 class CodeGraderPlugin(FlagTypePlugin):
     def check(self, attempt):
-        #Flag is JSON
-        #{"problem-id":"aplusb","time-limit":1,"memory-limit":262144,"threshold":100}
-        #time limit in seconds, memory limit in KiB, points threshold for awarding flag
+        # Flag is JSON
+        # {"problem-id":"aplusb","time-limit":1,
+        # "memory-limit":262144,"threshold":100}
+        # time limit in seconds, memory limit in KiB, 
+        # points threshold for awarding flag
         problem_data = self.flag_info
         try:
-            #print(attempt[6:-1])
-            solution=base64.b64decode(attempt[6:-1]).decode("utf-8")
-            #print(solution.partition("\n"))
-            lang=solution.partition("\n")[0]
-            src=solution.partition("\n")[2]
-            #print(lang,src)
-        except:
+            # print(attempt[6:-1])
+            solution = base64.b64decode(attempt[6:-1]).decode("utf-8")
+            # print(solution.partition("\n"))
+            lang = solution.partition("\n")[0]
+            src = solution.partition("\n")[2]
+            # print(lang,src)
+        except Exception:
             print(False, "Invalid encoding")
             return False
-        ans = grader.submit(problem_data['problem-id'],lang,src,problem_data['time-limit'],problem_data['memory-limit'])
+        ans = grader.submit(problem_data['problem-id'], lang, src, 
+            problem_data['time-limit'], problem_data['memory-limit'])
         print(ans)
-        if ans["success"]==False:
+        if not ans["success"]:
             print(False, ans["data"])
             return False
         else:
