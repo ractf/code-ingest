@@ -196,7 +196,7 @@ try:
         config.read_file(fp)
 except FileNotFoundError as e:
     raise ValueError(
-        "Couldn't find config file {0} - consider setting env-var RACTF_CONFIG to point to the config file".format(
+        "Couldn't find config file {0} - consider setting env-var GRADER_CONFIG to point to the config file".format(
             filename
         )
     ) from e
@@ -223,13 +223,13 @@ class CodeGraderPlugin(FlagTypePlugin):
         ans = grader.submit(problem_data['problem-id'],lang,src,problem_data['time-limit'],problem_data['memory-limit'])
         print(ans)
         if ans["success"]==False:
-            print(False,ans["data"])
+            print(False, ans["data"])
             return False
         else:
             score = 0
-            res=[]
+            res = []
             for i in ans["data"]:
-                score+=i['points']
+                score += i['points']
                 status = i['status']
                 if status & 4:
                     res.append('TLE')
@@ -247,7 +247,8 @@ class CodeGraderPlugin(FlagTypePlugin):
                     res.append('SC')
                 else:
                     res.append('AC')
-            print(score>=problem_data["threshold"]," ".join(res))
-            return score>=problem_data["threshold"]
+            print(score >= problem_data["threshold"], " ".join(res))
+            return score >= problem_data["threshold"]
+
 
 PLUGIN = CodeGraderPlugin
