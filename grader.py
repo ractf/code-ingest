@@ -2,6 +2,7 @@
 # https://github.com/DMOJ/judge-server/blob/fdc4fbcc59e021230c7d4336b3d0d54aba2884ea/dmoj/packet.py
 # and https://github.com/DMOJ/judge-server/blob/master/dmoj/utils/unicode.py
 
+import base64
 import configparser
 import json
 import logging
@@ -12,7 +13,6 @@ import struct
 import threading
 import time
 import traceback
-import base64
 import zlib
 
 from ...bases import FlagTypePlugin
@@ -200,7 +200,8 @@ logging.basicConfig(
         logging.StreamHandler()
     ])
 filename = os.environ.get("GRADER_CONFIG",
-                          os.path.join(os.path.dirname(__file__), "ractf_grader.ini"))
+                          os.path.join(os.path.dirname(__file__),
+                          "ractf_grader.ini"))
 try:
     with open(filename) as fp:
         config.read_file(fp)
@@ -235,7 +236,8 @@ class CodeGraderPlugin(FlagTypePlugin):
             print(False, "Invalid encoding")
             return False
         ans = grader.submit(problem_data['problem-id'], lang, src,
-                            problem_data['time-limit'], problem_data['memory-limit'])
+                            problem_data['time-limit'], 
+                            problem_data['memory-limit'])
         print(ans)
         if not ans["success"]:
             print(False, ans["data"])
