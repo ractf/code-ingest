@@ -4,16 +4,16 @@
 
 import configparser
 import json
-import os
 import logging
+import os
 import socket
 import ssl
 import struct
 import threading
 import time
 import traceback
-import zlib
 import base64
+import zlib
 
 from ...bases import FlagTypePlugin
 
@@ -40,7 +40,7 @@ class PacketManager:
     SIZE_PACK = struct.Struct('!I')
 
     def __init__(self, port, key, secure=False, no_cert_check=False,
-        cert_store=None):
+                 cert_store=None):
         self.port = port
         self.key = key
         self._closed = False
@@ -87,7 +87,7 @@ class PacketManager:
                 if self.ssl_context:
                     log.info('Starting TLS on: %s', self.port)
                     self.conn = self.ssl_context.wrap_socket(self.conn,
-                        server_side=True)
+                                                             server_side=True)
                 log.info('Waiting for handshake: %s', self.port)
                 self.input = self.conn.makefile('rb')
                 self.output = self.conn.makefile('wb', 0)
@@ -142,7 +142,7 @@ class PacketManager:
     def _send_packet(self, packet: dict):
         for k, v in packet.items():
             if isinstance(v, bytes):
-                # Make sure we don't have any garbage utf-8 from 
+                # Make sure we don't have any garbage utf-8 from
                 # e.g. weird compilers
                 # *cough* fpc *cough* that could cause this routine to crash
                 # We cannot use utf8text because it may not be text.
@@ -151,7 +151,7 @@ class PacketManager:
         raw = zlib.compress(utf8bytes(json.dumps(packet)))
         with self._lock:
             self.output.writelines((PacketManager.SIZE_PACK.pack(len(raw)),
-                raw))
+                                    raw))
 
     def submit(self, problem_id, language, source, time_limit, memory_limit):
         self.submissions_count += 1
@@ -193,20 +193,20 @@ class PacketManager:
 config = configparser.ConfigParser()
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(threadName)-12.12s]" \
+    format="%(asctime)s [%(threadName)-12.12s]"
     " [%(levelname)-5.5s]  %(message)s",
     handlers=[
         # logging.FileHandler("test.log"),
         logging.StreamHandler()
     ])
 filename = os.environ.get("GRADER_CONFIG",
-    os.path.join(os.path.dirname(__file__), "ractf_grader.ini"))
+                          os.path.join(os.path.dirname(__file__), "ractf_grader.ini"))
 try:
     with open(filename) as fp:
         config.read_file(fp)
 except FileNotFoundError as e:
     raise ValueError(
-        "Couldn't find config file {0} - consider setting env-var " \
+        "Couldn't find config file {0} - consider setting env-var "
         "GRADER_CONFIG to point to the config file".format(
             filename
         )
@@ -221,7 +221,7 @@ class CodeGraderPlugin(FlagTypePlugin):
         # Flag is JSON
         # {"problem-id":"aplusb","time-limit":1,
         # "memory-limit":262144,"threshold":100}
-        # time limit in seconds, memory limit in KiB, 
+        # time limit in seconds, memory limit in KiB,
         # points threshold for awarding flag
         problem_data = self.flag_info
         try:
@@ -234,8 +234,8 @@ class CodeGraderPlugin(FlagTypePlugin):
         except Exception:
             print(False, "Invalid encoding")
             return False
-        ans = grader.submit(problem_data['problem-id'], lang, src, 
-            problem_data['time-limit'], problem_data['memory-limit'])
+        ans = grader.submit(problem_data['problem-id'], lang, src,
+                            problem_data['time-limit'], problem_data['memory-limit'])
         print(ans)
         if not ans["success"]:
             print(False, ans["data"])
