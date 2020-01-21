@@ -23,6 +23,7 @@ classifiers = [
 python = "^3.7"
 starlette = "^0.12.13"
 uvicorn = "^0.10.4"
+docker = "^4.1.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"
