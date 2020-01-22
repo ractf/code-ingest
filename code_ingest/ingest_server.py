@@ -20,7 +20,6 @@ from json.decoder import JSONDecodeError
 
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
-from starlette.responses import PlainTextResponse
 from starlette.routing import Route
 
 from .pipeline import DockerPipeline
@@ -33,7 +32,7 @@ cmd_map = {
 
 code_pipeline = DockerPipeline(
     image_name="sh3llcod3/codegolf-box",
-    exec_method="Volumes",
+    file_method="Volumes",
     auto_remove=True,
     container_lifetime=45,
     disable_network=True,
@@ -56,13 +55,18 @@ async def run_code(request) -> str:
         data: str = b64decode(data.get('exec', None))
         return_value: JSONResponse = JSONResponse(
             {
-                'result': b64encode(code_pipeline.run_container(data, exec_cmd).encode()).decode()
+                'result': b64encode(code_pipeline.run_container(data, exec_cmd)).decode()
             }
         )
 
-    except(Error, TypeError, ValueError, JSONDecodeError) as e:
-        return_value: PlainTextResponse = PlainTextResponse("Error: Invalid/missing parameters/route.")
-        print(e)
+    except(Error, TypeError, ValueError, JSONDecodeError):
+        return_value: JSONResponse = JSONResponse(
+            {
+                'result': b64encode(
+                    b"Error: Invalid/missing parameters/route."
+                ).decode()
+            }
+        )
 
     return return_value
 

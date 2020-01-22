@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from tempfile import NamedTemporaryFile
+
 import docker
 
 
@@ -28,13 +30,15 @@ class DockerPipeline():
         self.docker_client.images.pull(self.container_config.get("image_name", "sh3llcod3/codegolf-box"))
 
     def run_container(self, exec_code, exec_method):
-        return "test"
 
-        """self.containers.run(
-            self.container_config["image_name"],
-            exec_method,
-            network_disabled=self.container_config['disable_network'],
-            remove=self.container_config['auto_remove'],
-            volumes={'/home/elliot/scrap/kek': {'bind': '/home/script', 'mode': 'ro'}},
-            tty=self.container_config['use_tty']
-        )"""
+        with NamedTemporaryFile() as temp_codefile:
+            temp_codefile.write(exec_code)
+
+            return self.docker_client.containers.run(
+                self.container_config["image_name"],
+                exec_method,
+                network_disabled=self.container_config['disable_network'],
+                remove=self.container_config['auto_remove'],
+                volumes={temp_codefile.name: {'bind': '/home/script', 'mode': 'ro'}},
+                tty=self.container_config['use_tty']
+            )
