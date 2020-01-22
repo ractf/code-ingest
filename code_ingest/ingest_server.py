@@ -54,7 +54,11 @@ async def run_code(request) -> str:
 
         data = await request.json()
         data: str = b64decode(data.get('exec', None))
-        return_value: JSONResponse = JSONResponse({'result': b64encode(code_pipeline.run_container(data, exec_cmd).encode()).decode()})
+        return_value: JSONResponse = JSONResponse(
+            {
+                'result': b64encode(code_pipeline.run_container(data, exec_cmd).encode()).decode()
+            }
+        )
 
     except(Error, TypeError, ValueError, JSONDecodeError) as e:
         return_value: PlainTextResponse = PlainTextResponse("Error: Invalid/missing parameters/route.")
