@@ -14,13 +14,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from base64 import b64decode, b64encode
+from binascii import Error
+from json.decoder import JSONDecodeError
+
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
-from starlette.requests import Request
+from starlette.responses import PlainTextResponse
 from starlette.routing import Route
-from starlette.responses import Response
 
 from .pipeline import DockerPipeline
+
+cmd_map = {
+    "python": "time python3 /home/script",
+    "gcc": "gcc -x c /home/script -o program; time ./program",
+    "cpp": "g++ -x c++ /home/script -o program; time ./program"
+}
 
 code_pipeline = DockerPipeline(
     image_name="sh3llcod3/codegolf-box",
@@ -34,18 +43,26 @@ code_pipeline = DockerPipeline(
 
 code_pipeline.pull_image()
 
-async def run_python(request):
-    ...
 
-async def run_gcc(request):
-    ...
+async def run_code(request) -> str:
 
-async def run_cpp(request):
-    ...
+    try:
+        exec_cmd: str = cmd_map.get(request.path_params.get('interpreter', False), False)
+
+        if not exec_cmd:
+            raise ValueError
+
+        data = await request.json()
+        data: str = b64decode(data.get('exec', None))
+        return_value: JSONResponse = JSONResponse({'result': b64encode(code_pipeline.run_container(data, exec_cmd).encode()).decode()})
+
+    except(Error, TypeError, ValueError, JSONDecodeError) as e:
+        return_value: PlainTextResponse = PlainTextResponse("Error: Invalid/missing parameters/route.")
+        print(e)
+
+    return return_value
 
 
 app = Starlette(debug=False, routes=[
-    Route('/run/python', run_python),
-    Route('/run/gcc', run_gcc),
-    Route('/run/cpp', run_cpp)
+    Route('/run/{interpreter}', run_code, methods=['POST']),
 ])

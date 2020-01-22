@@ -28,22 +28,16 @@ class DockerPipeline():
         self.docker_client = docker.from_env()
 
     def pull_image(self):
-        self.docker_client.pull(self.container_config.get("image_name", "sh3llcod3/codegolf-box"))
+        self.docker_client.images.pull(self.container_config.get("image_name", "sh3llcod3/codegolf-box"))
 
-    def run_container(self, interpreter):
+    def run_container(self, exec_code, exec_method):
+        return "test"
 
-        if interpreter == "python":
-            exec_cmd = "python3 /home/script"
-        elif interpreter == "gcc":
-            exec_cmd = "gcc -x c /home/script -o program; ./program"
-        elif interpreter == "cpp":
-            exec_cmd = " g++ -x c++ /home/script -o program; ./program"
-
-        self.containers.run(
+        """self.containers.run(
             self.container_config["image_name"],
-            exec_cmd,
+            exec_method,
             network_disabled=self.container_config['disable_network'],
             remove=self.container_config['auto_remove'],
             volumes={'/home/elliot/scrap/kek': {'bind': '/home/script', 'mode': 'ro'}},
             tty=self.container_config['use_tty']
-        )
+        )"""
