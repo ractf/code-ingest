@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from tempfile import NamedTemporaryFile
+import tempfile
 
 import docker
 
@@ -31,14 +31,21 @@ class DockerPipeline():
 
     def run_container(self, exec_code, exec_method):
 
-        with NamedTemporaryFile() as temp_codefile:
-            temp_codefile.write(exec_code)
+        try:
+            with tempfile.NamedTemporaryFile() as temp_codefile:
+                with open(temp_codefile.name, 'wb') as _code:
+                    _code.write(exec_code)
 
-            return self.docker_client.containers.run(
-                self.container_config["image_name"],
-                exec_method,
-                network_disabled=self.container_config['disable_network'],
-                remove=self.container_config['auto_remove'],
-                volumes={temp_codefile.name: {'bind': '/home/script', 'mode': 'ro'}},
-                tty=self.container_config['use_tty']
-            )
+                return self.docker_client.containers.run(
+                    self.container_config["image_name"],
+                    exec_method,
+                    network_disabled=self.container_config['disable_network'],
+                    remove=self.container_config['auto_remove'],
+                    volumes={temp_codefile.name: {'bind': '/home/script', 'mode': 'ro'}},
+                    mem_limit=self.container_config['mem_max'],
+                    memswap_limit=self.container_config['mem_max'],
+                    tty=self.container_config['use_tty']
+                )
+
+        except(docker.errors.ContainerError):
+            return None

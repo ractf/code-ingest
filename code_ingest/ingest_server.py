@@ -36,6 +36,7 @@ code_pipeline = DockerPipeline(
     auto_remove=True,
     container_lifetime=45,
     disable_network=True,
+    mem_max="24m",
     use_tty=True,
 
 )
@@ -55,7 +56,9 @@ async def run_code(request) -> str:
         data: str = b64decode(data.get('exec', None))
         return_value: JSONResponse = JSONResponse(
             {
-                'result': b64encode(code_pipeline.run_container(data, exec_cmd)).decode()
+                'result': b64encode(
+                    code_pipeline.run_container(data, f"/bin/sh -c '{exec_cmd}'")
+                ).decode()
             }
         )
 
