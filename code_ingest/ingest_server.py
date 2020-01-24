@@ -25,9 +25,9 @@ from starlette.routing import Route
 from .pipeline import DockerPipeline
 
 cmd_map = {
-    "python": "time python3 /home/script",
-    "gcc": "gcc -x c /home/script -o program; time ./program",
-    "cpp": "g++ -x c++ /home/script -o program; time ./program"
+    "python": "python3 /home/script",
+    "gcc": "gcc -x c /home/script -o program && ./program",
+    "cpp": "g++ -x c++ /home/script -o program && ./program"
 }
 
 code_pipeline = DockerPipeline(
@@ -66,7 +66,7 @@ async def run_code(request) -> str:
         return_value: JSONResponse = JSONResponse(
             {
                 'result': b64encode(
-                    b"Error: Invalid/missing parameters/route."
+                    b"Error: Invalid/missing required parameters or endpoint."
                 ).decode()
             }
         )
