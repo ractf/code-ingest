@@ -17,10 +17,11 @@
 from base64 import b64decode, b64encode
 from binascii import Error
 from json.decoder import JSONDecodeError
+from typing import List, Union
 
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
-from starlette.routing import Route
+from starlette.routing import BaseRoute, Route
 
 from .pipeline import DockerPipeline
 
@@ -41,29 +42,26 @@ code_pipeline = DockerPipeline(
 
 )
 
-code_pipeline.pull_image()
+
+async def check_image() -> None:
+    await code_pipeline.pull_image()
 
 
-async def run_code(request) -> str:
+async def run_code(request) -> JSONResponse:
 
     try:
-        exec_cmd: str = cmd_map.get(request.path_params.get('interpreter', False), False)
+        exec_cmd: Union[str, bool] = cmd_map.get(request.path_params.get('interpreter', False), False)
 
         if not exec_cmd:
             raise ValueError
 
-        data = await request.json()
-        data: str = b64decode(data.get('exec', None))
-        return_value: JSONResponse = JSONResponse(
-            {
-                'result': b64encode(
-                    code_pipeline.run_container(data, f"/bin/sh -c '{exec_cmd}'")
-                ).decode()
-            }
+        data: Union[str, None, bytes] = b64decode((await request.json()).get('exec', None))
+        return JSONResponse(
+            await code_pipeline.run_container(data, f"/bin/sh -c '{exec_cmd}'")
         )
 
     except(Error, TypeError, ValueError, JSONDecodeError):
-        return_value: JSONResponse = JSONResponse(
+        return JSONResponse(
             {
                 'result': b64encode(
                     b"Error: Invalid/missing required parameters or endpoint."
@@ -71,9 +69,9 @@ async def run_code(request) -> str:
             }
         )
 
-    return return_value
 
-
-app = Starlette(debug=False, routes=[
+routes: List[BaseRoute] = [
     Route('/run/{interpreter}', run_code, methods=['POST']),
-])
+]
+
+app = Starlette(debug=False, routes=routes, on_startup=[check_image])
