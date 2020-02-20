@@ -12,3 +12,4 @@ From there, to deploy this app, just type `ingest_server`
 
 Feel free to suggest code changes.
 All code is formatted and tested to be compliant with `flake8`.
+Mypy compliance is also followed, just run `mypy` in the repo.

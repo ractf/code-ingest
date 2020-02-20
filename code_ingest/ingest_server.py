@@ -17,6 +17,7 @@
 from base64 import b64decode, b64encode
 from binascii import Error
 from json.decoder import JSONDecodeError
+from os import environ
 from typing import List, Union
 
 from starlette.applications import Starlette
@@ -28,23 +29,32 @@ from .pipeline import DockerPipeline
 cmd_map = {
     "python": "python3 /home/script",
     "gcc": "gcc -x c /home/script -o program && ./program",
-    "cpp": "g++ -x c++ /home/script -o program && ./program"
+    "cpp": "g++ -x c++ /home/script -o program && ./program",
+    "perl": "perl /home/script",
+    "ruby": "ruby /home/script",
+    "java": "java /home/script",
+    "node": "node /home/script"
 }
 
+# Setup ENV Vars with some defaults.
+IMAGE_NAME = environ.get("CODE_INGEST_IMAGE", "sh3llcod3/ractf-box")
+LOG_MAX = environ.get("CODE_INGEST_MAX_OUTPUT", '1001')
+
 code_pipeline = DockerPipeline(
-    image_name="sh3llcod3/codegolf-box",
+    image_name=IMAGE_NAME,
     file_method="Volumes",
     auto_remove=True,
     container_lifetime=45,
     disable_network=True,
     mem_max="24m",
     use_tty=True,
+    output_max=int(LOG_MAX)
 
 )
 
 
 async def check_image() -> None:
-    await code_pipeline.pull_image()
+    await code_pipeline.pull_image(IMAGE_NAME)
 
 
 async def run_code(request) -> JSONResponse:
@@ -70,8 +80,27 @@ async def run_code(request) -> JSONResponse:
         )
 
 
+async def check_result(request) -> JSONResponse:
+
+    try:
+
+        return JSONResponse(
+            await code_pipeline.poll_result(request.path_params.get('token', None))
+        )
+
+    except(Error, TypeError, ValueError, JSONDecodeError):
+        return JSONResponse(
+            {
+                'result': b64encode(
+                    b"Error: Invalid/missing required parameters or endpoint."
+                ).decode()
+            }
+        )
+
+
 routes: List[BaseRoute] = [
     Route('/run/{interpreter}', run_code, methods=['POST']),
+    Route('/poll/{token}', check_result, methods=['POST']),
 ]
 
 app = Starlette(debug=False, routes=routes, on_startup=[check_image])

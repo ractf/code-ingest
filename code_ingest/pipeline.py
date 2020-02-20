@@ -19,7 +19,8 @@ import logging
 import secrets
 import tarfile
 import threading
-# from base64 import b64encode
+from base64 import b64encode
+from binascii import Error
 from os import chdir
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -35,14 +36,17 @@ class DockerPipeline():
         self.container_config = container_config
         self.docker_client = docker.from_env()
 
-    async def pull_image(self) -> None:
+        # This is temporary until a persistent solution is implemented.
+        self.result_dict = {}
+
+    async def pull_image(self, img_name) -> None:
         try:
-            self.docker_client.images.get("sh3llcod3/codegolf-box")
+            self.docker_client.images.get(img_name)
             logging.info("Image found, skipping pull.")
         except(docker.errors.ImageNotFound):
             logging.info("Image not found, pulling now.")
             self.docker_client.images.pull(
-                self.container_config.get("image_name", "sh3llcod3/codegolf-box")
+                self.container_config.get("image_name", img_name)
             )
 
     async def xfr_file(self, src, dst, container_token) -> None:
@@ -80,16 +84,20 @@ class DockerPipeline():
                     self.container_config["image_name"],
                     exec_method,
                     network_disabled=self.container_config['disable_network'],
-                    remove=self.container_config['auto_remove'],
+                    # remove=self.container_config['auto_remove'],
                     volumes={temp_codefile.name: {'bind': '/home/script', 'mode': 'ro'}},
                     mem_limit=self.container_config['mem_max'],
                     memswap_limit=self.container_config['mem_max'],
                     tty=self.container_config['use_tty'],
-                    # detach=True,
+                    detach=True,
                     stop_signal="SIGKILL",
                     name=container_token
                 )
-                logging.info(current_container)
+                status_code = current_container.wait()
+                output = current_container.logs()[:self.container_config['output_max']]
+                current_container.remove()
+                self.result_dict[container_token] = [output, status_code.get('StatusCode')]
+                logging.info(self.result_dict[container_token])
 
         except(docker.errors.ContainerError):
             return None
@@ -103,13 +111,22 @@ class DockerPipeline():
 
         return {'token': container_token}
 
-    async def poll_result(self) -> Dict[str, str]:
-        result = ""
-        exec_time = ""
-        sloc = ""
+    async def poll_result(self, container_token) -> Dict[str, str]:
+        error_json = {"result": "Error: Invalid Token, Please Try Again", "status_code": "1"}
 
-        return {
-            "result": result,
-            "time": exec_time,
-            "sloc": sloc
-        }
+        try:
+
+            result = self.result_dict.get(container_token)
+            del self.result_dict[container_token]
+
+            if result is not None:
+                return {
+                    "result": b64encode(result[0]).decode(),
+                    "status_code": str(result[1])
+                }
+
+            else:
+                return error_json
+
+        except(KeyError, ValueError, Error):
+            return error_json
