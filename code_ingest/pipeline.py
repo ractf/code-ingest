@@ -117,9 +117,9 @@ class DockerPipeline():
         try:
 
             result = self.result_dict.get(container_token)
-            del self.result_dict[container_token]
 
             if result is not None:
+                del self.result_dict[container_token]
                 return {
                     "result": b64encode(result[0]).decode(),
                     "status_code": str(result[1])

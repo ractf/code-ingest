@@ -39,6 +39,7 @@ cmd_map = {
 # Setup ENV Vars with some defaults.
 IMAGE_NAME = environ.get("CODE_INGEST_IMAGE", "sh3llcod3/ractf-box")
 LOG_MAX = environ.get("CODE_INGEST_MAX_OUTPUT", '1001')
+MEMORY_LIMIT = environ.get("CODE_INGEST_RAM_LIMIT", "24m")
 
 code_pipeline = DockerPipeline(
     image_name=IMAGE_NAME,
@@ -46,7 +47,7 @@ code_pipeline = DockerPipeline(
     auto_remove=True,
     container_lifetime=45,
     disable_network=True,
-    mem_max="24m",
+    mem_max=MEMORY_LIMIT,
     use_tty=True,
     output_max=int(LOG_MAX)
 
@@ -100,7 +101,7 @@ async def check_result(request) -> JSONResponse:
 
 routes: List[BaseRoute] = [
     Route('/run/{interpreter}', run_code, methods=['POST']),
-    Route('/poll/{token}', check_result, methods=['POST']),
+    Route('/poll/{token}', check_result, methods=['GET']),
 ]
 
 app = Starlette(debug=False, routes=routes, on_startup=[check_image])
