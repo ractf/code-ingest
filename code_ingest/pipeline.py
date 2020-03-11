@@ -21,9 +21,7 @@ import tarfile
 import threading
 from base64 import b64encode
 from binascii import Error
-from os import chdir
-from pathlib import Path
-from tempfile import NamedTemporaryFile
+from io import BytesIO
 from typing import Dict
 
 import docker
@@ -44,28 +42,25 @@ class DockerPipeline():
             self.docker_client.images.get(img_name)
             logging.info("Image found, skipping pull.")
         except(docker.errors.ImageNotFound):
-            logging.info("Image not found, pulling now.")
+            logging.info("Image not found or image changed, will pull now.")
             self.docker_client.images.pull(
                 self.container_config.get("image_name", img_name)
             )
 
-    async def xfr_file(self, src, dst, container_token) -> None:
+    def cp_bytes(self, src, dst, container_token, bytes_obj=True) -> None:
 
+        # Create our in-memory tarfile
+        in_mem_tarfile = BytesIO()
+        __in_mem_code = BytesIO(src)
+        tar_info = tarfile.TarInfo("script")
+        tar_info.size = len(src)
+        __tar_manager = tarfile.open(fileobj=in_mem_tarfile, mode="w")
+        __tar_manager.addfile(tar_info, __in_mem_code)
+        __tar_manager.close()
+
+        # Put the archive in the container with format docker-py wants.
         container_dst = self.docker_client.containers.get(container_token)
-        srcpath = Path(src).resolve()
-        srcpath_tar = srcpath.with_suffix('.tar')
-        dstpath = Path(dst)
-        prev_path = Path.cwd()
-        tar = tarfile.open(srcpath_tar, mode='w')
-        try:
-            chdir(srcpath.parent)
-            tar.add(srcpath.parts[-1])
-        finally:
-            tar.close()
-            chdir(prev_path)
-
-        with open(srcpath_tar, "rb") as srcfile:
-            container_dst.put_archive(str(dstpath), srcfile.read())
+        container_dst.put_archive(dst, in_mem_tarfile.getvalue())
 
     def setup_container(self) -> None:
         ...
@@ -73,10 +68,28 @@ class DockerPipeline():
     def __spawn_threaded_container(self, exec_code, exec_method, container_token) -> None:
 
         try:
+            current_container = self.docker_client.containers.run(
+                self.container_config["image_name"],
+                "tail -f /dev/null",
+                network_disabled=self.container_config['disable_network'],
+                mem_limit=self.container_config['mem_max'],
+                memswap_limit=self.container_config['mem_max'],
+                detach=True,
+                remove=self.container_config['auto_remove'],
+                stop_signal="SIGKILL",
+                name=container_token
+            )
+            self.cp_bytes(exec_code, "/home", container_token)
+            exec_result = list(current_container.exec_run(
+                exec_method,
+                workdir="/home/",
+            ))[::-1]
+            exec_result[0] = exec_result[0][:self.container_config['output_max']]
+            self.result_dict[container_token] = exec_result
+            logging.info(self.result_dict[container_token])
+            current_container.stop()
 
-            self.setup_container()
-
-            with NamedTemporaryFile() as temp_codefile:
+            '''with NamedTemporaryFile() as temp_codefile:
                 with open(temp_codefile.name, 'wb') as _code:
                     _code.write(exec_code)
 
@@ -97,7 +110,7 @@ class DockerPipeline():
                 output = current_container.logs()[:self.container_config['output_max']]
                 current_container.remove()
                 self.result_dict[container_token] = [output, status_code.get('StatusCode')]
-                logging.info(self.result_dict[container_token])
+                logging.info(self.result_dict[container_token])'''
 
         except(docker.errors.ContainerError):
             return None

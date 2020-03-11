@@ -33,11 +33,12 @@ cmd_map = {
     "perl": "perl /home/script",
     "ruby": "ruby /home/script",
     "java": "java /home/script",
-    "node": "node /home/script"
+    "node": "node /home/script",
+    "nasm": "nasm -f elf64 /home/script && ld -s -o program script.o && ./program"
 }
 
 # Setup ENV Vars with some defaults.
-IMAGE_NAME = environ.get("CODE_INGEST_IMAGE", "sh3llcod3/ractf-box")
+IMAGE_NAME = environ.get("CODE_INGEST_IMAGE", "sh3llcod3/code-ingest")
 LOG_MAX = environ.get("CODE_INGEST_MAX_OUTPUT", '1001')
 MEMORY_LIMIT = environ.get("CODE_INGEST_RAM_LIMIT", "24m")
 
