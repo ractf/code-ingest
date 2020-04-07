@@ -1,5 +1,9 @@
 # Contribution Guidelines
 
+I expect to put this on pypi soon, so when that's done
+installation will be a case of `python3 -m pip install code-ingest`
+For now though:
+
 Start by installing pyenv and poetry.
 
 Then clone the repo and change into the relevant directory.
