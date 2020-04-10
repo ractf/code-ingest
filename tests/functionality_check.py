@@ -17,9 +17,9 @@
 import random
 import threading
 import traceback
-from base64 import b64decode
+from base64 import b64decode, b64encode
 from os import environ
-from sys import argv
+from sys import argv, exit
 from time import sleep
 
 import requests
@@ -49,28 +49,48 @@ TIME_DELAY = 4
 STRESS_THREADS_MAX = 200
 
 
-def _run_code(langs):
+def _run_code(langs, code=None, poll=False, chall=None):
     try:
+        if code is not None:
+            global the_codes
+            the_codes = {langs: b64encode(code.encode()).decode()}
         POLL_TIMEOUT = 200
+        if chall is not None:
+            json = {
+                "exec": the_codes[langs],
+                "chall": chall,
+            }
+        else:
+            json = {
+                "exec": the_codes[langs],
+            }
         token = requests.post(
-            f"http://{ingest_host}:{ingest_port}/run/{langs}", json={"exec": the_codes[langs]}
+            f"http://{ingest_host}:{ingest_port}/run/{langs}",
+            json=json
         ).json()["token"]
         result = requests.get(
             f"http://{ingest_host}:{ingest_port}/poll/{token}"
         ).json()
         err_result = ["RXJyb3I6IEludmFsaWQvbWlzc2luZyByZXF1aXJlZCBwYXJhbWV0ZXJzIG9yIGVuZHBvaW50Lg==",
                       'Error: Invalid Token, Please Try Again']
-        while result["result"] in err_result and POLL_TIMEOUT > 0:
+        while result["done"] != "0" and POLL_TIMEOUT > 0:
             POLL_TIMEOUT -= 1
             result = requests.get(
                f"http://{ingest_host}:{ingest_port}/poll/{token}"
             ).json()
-            sleep(0.3)
+            if poll:
+                print("Polling:", result)
+            sleep(0.6)
 
         if result["result"] in err_result:
             return f"Error running {langs}"
         else:
-            result = b64decode(result["result"]).decode()
+            raw = result
+            if raw.get("timeout", None) is not None:
+                result = "Container Timed Out!"
+            else:
+                result = b64decode(result["result"]).decode()
+        print(raw)
         print(f"{langs} says: {result.rstrip()}\n{'-'*80}")
         sleep(0.2)
         return None
@@ -114,6 +134,39 @@ def stress_test(the_codes) -> None:
 
 
 def run_tests() -> None:
+
+    if len(argv) > 1 and argv[1] == "-i":
+        while True:
+            try:
+                c_int = input(f"Enter endpoint (e.g. python, gcc, etc) >> ")  # noqa: S322
+                c_code = input(f"Enter {c_int} code >> ")  # noqa: S322
+                c_chall = input("Enter challenge number, default is 0 >> ")  # noqa: S322
+                c_poll = True if input("Display polling? y/n >> ").lower().startswith("y") else False  # noqa: S322
+                _run_code(c_int, c_code, c_poll, c_chall)
+            except(KeyboardInterrupt, EOFError):
+                print()
+                exit(0)
+
+    elif len(argv) >= 2 and argv[1] == "-a":
+        print(
+            "Hit admin endpoints, format: ingest_tests -a {endpoint} -t {token} -c {container name if applicable}"
+        )
+
+        if len(argv) >= 4:
+            endpoint = argv[2]
+            token = argv[4] if argv[3] == "-t" else None
+
+            if token is None:
+                print("Missing admin token, this is mandatory.")
+
+            if len(argv) >= 6:
+                json = {"token": token, "container": argv[6]}
+            else:
+                json = {"token": token}
+
+            print(requests.post(f"http://{ingest_host}:{ingest_port}/admin/{endpoint}", json=json).json())
+            exit(0)
+
     sequential_test(the_codes)
     parallel_test(the_codes)
     if len(argv) > 1 and argv[1] == "-s":

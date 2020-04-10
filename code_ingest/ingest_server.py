@@ -21,34 +21,33 @@ from os import environ
 from secrets import token_hex
 from typing import List, Union
 
-import pyotp
-
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute, Route
 
 from .pipeline import DockerPipeline
 
-cmd_map = {
-    "python": "python3 /home/ractf/script",
-    "gcc": "gcc -x c /home/ractf/script -o program && ./program",
-    "cpp": "g++ -x c++ /home/ractf/script -o program && ./program",
-    "perl": "perl /home/ractf/script",
-    "ruby": "ruby /home/ractf/script",
-    "java": "java /home/ractf/script",
-    "node": "node /home/ractf/script",
-    "nasm": "nasm -f elf64 /home/ractf/script && ld -s -o program script.o && ./program"
+ext_map = {
+    "python": "script.py",
+    "gcc": "script.c",
+    "cpp": "script.cpp",
+    "perl": "script.pl",
+    "ruby": "script.rb",
+    "java": "program.java",
+    "node": "script.js",
+    "nasm": "script.asm"
 }
 
-ext_map = {
-    "python": ".py",
-    "gcc": ".c",
-    "cpp": ".cpp",
-    "perl": ".pl",
-    "ruby": ".rb",
-    "java": ".java",
-    "node": ".js",
-    "nasm": ".asm"
+cmd_map = {
+    "python": f"python3 {ext_map['python']}",
+    "gcc": f"gcc {ext_map['gcc']} -o program && ./program",
+    "cpp": f"g++ {ext_map['cpp']} -o program && ./program",
+    "perl": f"perl {ext_map['perl']}",
+    "ruby": f"ruby {ext_map['ruby']}",
+    "java": f"java {ext_map['java']}",
+    "node": f"node {ext_map['node']}",
+    "nasm": (f"nasm -f elf64 {ext_map['nasm']} && "
+             "ld -s -o program script.o && ./program")
 }
 
 # Setup ENV Vars with some defaults.
@@ -56,32 +55,25 @@ IMAGE_NAME = environ.get("CODE_INGEST_IMAGE", "sh3llcod3/code-ingest")
 LOG_MAX = environ.get("CODE_INGEST_MAX_OUTPUT", '1001')
 MEMORY_LIMIT = environ.get("CODE_INGEST_RAM_LIMIT", "24m")
 ADM_TOKEN = environ.get("CODE_INGEST_ADM_TOKEN", token_hex())
-ADM_INIT_2FA_TOKEN = environ.get("CODE_INGEST_MFA_INIT_TOKEN", pyotp.random_base32())
 DISPLAY_ADM_TOKENS = bool(int(environ.get("CODE_INGEST_SPLASH_TOKENS", "1")))
-TOTP_VERIFY_PREV = bool(int(environ.get("CODE_INGEST_TOTP_COUNTER_REPLAY", "0")))
-SETUP_CODE_DIR = environ.get("CODE_INGEST_SETUP_CODE_DIR", "setup-code")
-
-# Setup 2FA
-totp = pyotp.TOTP(ADM_INIT_2FA_TOKEN)
-TOTP_SECRET_URL = totp.provisioning_uri("code-ingest@ractf.co.uk", issuer_name="RACTF Code Ingest Server")
+CONTAINER_TIMEOUT_VAL = int(environ.get("CODE_INGEST_TIMEOUT", "45"))
 
 code_pipeline = DockerPipeline(
     image_name=IMAGE_NAME,
     file_method="Volumes",
-    auto_remove=True,
-    container_lifetime=45,
+    auto_remove=False,
+    container_lifetime=CONTAINER_TIMEOUT_VAL,
     disable_network=True,
+    net="none",
     mem_max=MEMORY_LIMIT,
     use_tty=False,
     output_max=int(LOG_MAX),
 )
-self._build_map()
 
 
 async def check_image() -> None:
-    await code_pipeline.pull_image(IMAGE_NAME, DISPLAY_ADM_TOKENS,
-                                   ADM_TOKEN, ADM_INIT_2FA_TOKEN,
-                                   TOTP_SECRET_URL)
+    await code_pipeline._build_map()
+    await code_pipeline.pull_image(IMAGE_NAME, DISPLAY_ADM_TOKENS, ADM_TOKEN)
 
 
 async def run_code(request) -> JSONResponse:
@@ -89,16 +81,21 @@ async def run_code(request) -> JSONResponse:
     try:
         interpreter = request.path_params.get('interpreter', False)
         exec_cmd: Union[str, bool] = cmd_map.get(interpreter, False)
-        ext: str = ext_map.get(interpreter, False)
-        setup_file = "#!/bin/sh"
+        ext: str = ext_map.get(interpreter, "")
         data: Union[str, None, bytes] = b64decode((await request.json()).get('exec', None))
-        setup_file = (await request.json()).get('chall', None)
+        setup_file = (await request.json()).get('chall', '0')
 
         if not (exec_cmd or ext) or data is None:
             raise ValueError
 
         return JSONResponse(
-            await code_pipeline.run_container(data, f"/bin/sh -c '{exec_cmd}'", ext, setup_file)
+            await code_pipeline.run_container(
+                data,
+                (f"/bin/sh -c 'cd /home/ractf; chmod +x setup.sh && sh ./setup.sh;"
+                 f" dd if=/dev/null of=setup.sh &>/dev/null; {exec_cmd}'"),
+                ext,
+                setup_file
+            )
         )
 
     except(Error, TypeError, ValueError, JSONDecodeError):
@@ -132,22 +129,39 @@ async def check_result(request) -> JSONResponse:
 async def admin_functions(request) -> JSONResponse:
 
     try:
-        return JSONResponse(
-            {
-                'result': b64encode(
-                    b"Error: Not Implemented."
-                ).decode()
-            }
-        )
+        act_map = {
+            "prune": code_pipeline._prune_container,
+            "setupfiles": code_pipeline._get_setup_files,
+            "containercount": code_pipeline._get_container_count,
+            "kill": code_pipeline._kill_container,
+            "reset": code_pipeline._reset_all
+        }
+        act = request.path_params.get("action", None)
+        params = await request.json()
+        token = params.get('token', None)
+        container = params.get('container', None)
+
+        if token is not None and token == ADM_TOKEN:
+            do_act = act_map.get(act, None)
+
+            if do_act is not None:
+                resp = await do_act(cont=container)  # type: ignore
+                return JSONResponse(resp)
+
+            else:
+                raise ValueError
+
+        else:
+            return JSONResponse({
+                'result': "AuthError: Invalid or missing auth token.",
+                'status': "1"
+            })
 
     except(Error, TypeError, ValueError, JSONDecodeError):
-        return JSONResponse(
-            {
-                'result': b64encode(
-                    b"Error: Invalid/missing required parameters or endpoint."
-                ).decode()
-            }
-        )
+        return JSONResponse({
+            'result': "Error: Invalid/missing required parameters or endpoint.",
+            'status': "1"
+        })
 
 routes: List[BaseRoute] = [
     Route('/run/{interpreter}', run_code, methods=['POST']),

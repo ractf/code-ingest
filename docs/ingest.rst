@@ -16,14 +16,9 @@ some you may consider setting:
 - CODE_INGEST_MAX_OUTPUT: The max number of output characters permitted, default is '1001'
 - CODE_INGEST_RAM_LIMIT: The RAM limit of the container, default is "24m"
 - CODE_INGEST_ADM_TOKEN: The admin token to use, default is `secrets.token_hex()`
-- CODE_INGEST_MFA_INIT_TOKEN: The 2FA TOTP token secret, default is `pyotp.random_base32()`
-- CODE_INGEST_SPLASH_TOKENS: Whether to display the Admin & 2FA token on startup. Can be `1`/`0`,
+- CODE_INGEST_SPLASH_TOKENS: Whether to display the admin token on startup. Can be `1`/`0`,
   default is `1` (True)
-- CODE_INGEST_TOTP_COUNTER_REPLAY: When set to `1`, verify that TOTP code was not used before.
-- CODE_INGEST_SETUP_CODE_DIR: The directory with the setup code to be mounted. The files in this
-  directory need to be named according to the parameter that will be supplied from the frontend,
-  i.e. passing the optional `challenge` parameter from the `/run` endpoints means, that file
-  will be mounted in the container, the setup code ran and the file removed, then the user code is run.
+- CODE_INGEST_TIMEOUT: The maximum runtime per container before it times out.
 
 It is assumed the environment variables supplied will be in the correct format.
 
@@ -35,42 +30,34 @@ It is assumed the environment variables supplied will be in the correct format.
 
 The actions defined so far are:
 
-- :code:`reset`: When supplied, stop all running containers, and clear the dict holding
-  the current running containers
+- :code:`reset`: When supplied, stop all running containers, clear the dict holding any container objects
+  remove all the files inside the temporary volumes directory.
 
-- :code:`clear`: Don't stop any containers, but clear the dict holding the running containers.
-  This will render any containers created before useless as the result cannot be polled now.
-  Thus, use with care.
+- :code:`kill`: When this is specified along with the `container` field, stop that container and
+  remove the dict entry. (requires token)
 
-- :code:`verify2fa`: Verify the 2fa code with the one specified in `2FA`. (requires token & 2FA)
+- :code:`prune`: If there are stray containers lying around that have stopped but not been removed, remove them.
+  (requires token)
 
-- :code:`regen2fa`: Reset the 2fa code and replace secret with one provided in the `2FA`
-  field or generate a random one.
+- :code:`setupfiles`: Get the dictionary map which controls which challenge number matches
+  which setup file in the `files` parameter. (requires token)
 
-- :code:`stop`: When this is specified along with the `container` field, stop that container and
-  remove the dict entry.
-
-- :code:`stat`: When this endpoint is hit, return the equivalent of running `docker status`.
-  (requires token, 2FA)
-
-- :code:`containerstat`: Same as the last endpoint but returns stats for a specific container.
-  (requires token, 2FA, container)
+- :code:`containercount`: Return the number of running containers in the `number` parameter
+  and return all containers in the `real` parameter. (requires token)
 
 Success data:
 The returned JSON will have a `status` parameter with the value `0`
 
+Fail data:
+The `status` parameter will be `1` and there will be a `result` parameter will explain the reason for failure.
+
 +----------------------+--------+---------------------------------------------------------------------------------------+
 | Field                | Type   | Description                                                                 | Default |
 +----------------------+--------+-----------------------------------------------------------------------------+---------+
-| token                | string | The admin token set with :code:`CODE_INGEST_ADM_TOKEN` environment variable | random  |
-| 2FA                  | string | The 2FA TOTP admin code                                                     | random  |
-| new_totp_secret      | string | If `reset2fa` endpoint is hit, replace old TOTP secret with new one         | ---     |
-| container            | string | With certain endpoints, specify a particular container to act on            | ---     |
+| token                | string | The admin token set with :code:`CODE_INGEST_ADM_TOKEN` environment variable | ---     |
+| container            | string | With certain endpoints, specify a particular container name to act on       | ---     |
 +----------------------+--------+-----------------------------------------------------------------------------+---------+
 
-Note:
-The current 2FA implementation will not attempt to validate against replay-attacks of the same TOTP within a 30-sec period by default.
-This can be enabled by setting the env-var `CODE_INGEST_TOTP_COUNTER_REPLAY` to `1`/`0` (True/False).
 
 ******************************************************************************
                                    GET /<token>

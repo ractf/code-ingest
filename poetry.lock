@@ -310,14 +310,6 @@ version = "2.1.1"
 
 [[package]]
 category = "main"
-description = "Python One Time Password Library"
-name = "pyotp"
-optional = false
-python-versions = "*"
-version = "2.3.0"
-
-[[package]]
-category = "main"
 description = ""
 marker = "sys_platform == \"win32\" and python_version >= \"3.6\""
 name = "pypiwin32"
@@ -488,7 +480,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "d2591d58106edcf46102312249bf8bb772634e0025aada673bfdc4b33ee37d86"
+content-hash = "10e87b55077ea00ccaac22ec2805852fc1e5a2823bc5cb2b005322435808c01c"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -612,10 +604,6 @@ pycodestyle = [
 pyflakes = [
     {file = "pyflakes-2.1.1-py2.py3-none-any.whl", hash = "sha256:17dbeb2e3f4d772725c777fabc446d5634d1038f234e77343108ce445ea69ce0"},
     {file = "pyflakes-2.1.1.tar.gz", hash = "sha256:d976835886f8c5b31d47970ed689944a0262b5f3afa00a5a7b4dc81e5449f8a2"},
-]
-pyotp = [
-    {file = "pyotp-2.3.0-py2.py3-none-any.whl", hash = "sha256:c88f37fd47541a580b744b42136f387cdad481b560ef410c0d85c957eb2a2bc0"},
-    {file = "pyotp-2.3.0.tar.gz", hash = "sha256:fc537e8acd985c5cbf51e11b7d53c42276fee017a73aec7c07380695671ca1a1"},
 ]
 pypiwin32 = [
     {file = "pypiwin32-223-py3-none-any.whl", hash = "sha256:67adf399debc1d5d14dffc1ab5acacb800da569754fafdc576b2a039485aa775"},

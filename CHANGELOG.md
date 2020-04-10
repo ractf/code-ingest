@@ -5,7 +5,6 @@
 ### Features
 
 * Added admin endpoints
-* Implemented 2FA TOTP for admin endpoints
 * Reverted file-less method back to volumes for proper polling
 * Updated docs
 * Hardened the docker image
