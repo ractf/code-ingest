@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import atexit
 import random
 import threading
 import traceback
@@ -46,15 +47,18 @@ the_codes = {
 ingest_host = environ.get("INGEST_SERVER_HOST", "0.0.0.0")  # noqa: S104
 ingest_port = int(environ.get("INGEST_SERVER_PORT", "5050"))
 TIME_DELAY = 4
-STRESS_THREADS_MAX = 200
+STRESS_THREADS_MAX = 50  # rip my Proliant
+POLL_DURATION = 1
+DONE = 0
 
 
 def _run_code(langs, code=None, poll=False, chall=None):
     try:
+        global DONE
         if code is not None:
             global the_codes
             the_codes = {langs: b64encode(code.encode()).decode()}
-        POLL_TIMEOUT = 200
+        POLL_TIMEOUT = 30
         if chall is not None:
             json = {
                 "exec": the_codes[langs],
@@ -80,7 +84,7 @@ def _run_code(langs, code=None, poll=False, chall=None):
             ).json()
             if poll:
                 print("Polling:", result)
-            sleep(0.6)
+            sleep(POLL_DURATION)
 
         if result["result"] in err_result:
             return f"Error running {langs}"
@@ -92,6 +96,7 @@ def _run_code(langs, code=None, poll=False, chall=None):
                 result = b64decode(result["result"]).decode()
         print(raw)
         print(f"{langs} says: {result.rstrip()}\n{'-'*80}")
+        DONE += 1
         sleep(0.2)
         return None
 
@@ -121,21 +126,18 @@ def parallel_test(the_codes) -> None:
 # 2000-thread stress test
 def stress_test(the_codes) -> None:
     print(f"\n{'-'*28}Running {STRESS_THREADS_MAX}-thread test{'-'*28}")
-    thread_objects = []
+    print(f"Botters: Before you ask, my 20k bogomips machine cannot handle 200 threads.")
     for _ in range(STRESS_THREADS_MAX):
-        thread_objects.append(
-            threading.Thread(target=_run_code, args=(random.choice(list(the_codes)),)).start()  # noqa: S311
-        )
-
-    for t in thread_objects:
-        if t is not None:
-            t.start()
-            t.join()
+        threading.Thread(target=_run_code, args=(random.choice(list(the_codes)),)).start()  # noqa: S311
 
 
 def run_tests() -> None:
+    if len(argv) > 1 and argv[1] == "-s":
+        stress_test(the_codes)
+        atexit.register(lambda: print(f"Out of {STRESS_THREADS_MAX} threads, {DONE} completed successfully."))
+        exit(0)
 
-    if len(argv) > 1 and argv[1] == "-i":
+    elif len(argv) > 1 and argv[1] == "-i":
         while True:
             try:
                 c_int = input(f"Enter endpoint (e.g. python, gcc, etc) >> ")  # noqa: S322
@@ -169,8 +171,6 @@ def run_tests() -> None:
 
     sequential_test(the_codes)
     parallel_test(the_codes)
-    if len(argv) > 1 and argv[1] == "-s":
-        stress_test(the_codes)
 
 
 if __name__ == "__main__":

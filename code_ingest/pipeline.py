@@ -100,8 +100,11 @@ class DockerPipeline():
 
                 if cf.exists():
                     cf.unlink()
-        except(docker.errors.NotFound):
-            return None
+
+        except(docker.errors.NotFound, docker.errors.APIError):
+            pass
+
+        return None
 
     def __spawn_threaded_container(self, exec_code, exec_method, container_token, ext, setup_code) -> None:
 
@@ -131,13 +134,14 @@ class DockerPipeline():
                 memswap_limit=self.container_config['mem_max'],
                 tty=self.container_config['use_tty'],
                 detach=True,
-                stop_signal="SIGKILL",
+                stop_signal="SIGINT",
                 user="ractf",
                 name=container_token,
                 isolation="default"
             )
             self.result_dict[container_token] = [current_container, Path(sf.name), Path(cf.name)]
             current_container.reload()
+            return None
 
         except(docker.errors.ContainerError):
             return None

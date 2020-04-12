@@ -22,6 +22,26 @@ some you may consider setting:
 
 It is assumed the environment variables supplied will be in the correct format.
 
+Under the `tests/` directory, you can also find `functionality_check.py` which can be used to test
+the server out in a hurry. It's poorly written but allows you to access the features. If you've
+installed this from pypi, just swap the filename with the `ingest_tests` command, which should be
+available to you if pip has setup your `PATH` correctly.
+
+Run a basic functionality test of all the endpoints:
+
+:code:`./functionality_check.py`
+
+Run a stress test:
+:code:`./functionality_check.py -s`
+
+Run a prompt to manually test each endpoint:
+
+:code:`./functionality_check.py -i`
+
+Test any of the admin endpoints:
+
+:code:`./functionality_check.py -a {endpoint} -t {admin token} -c {container name if applicable}`
+
 ******************************************************************************
                                    POST /<action>
 ******************************************************************************
@@ -34,7 +54,7 @@ The actions defined so far are:
   remove all the files inside the temporary volumes directory.
 
 - :code:`kill`: When this is specified along with the `container` field, stop that container and
-  remove the dict entry. (requires token)
+  remove the dict entry. (requires token, container)
 
 - :code:`prune`: If there are stray containers lying around that have stopped but not been removed, remove them.
   (requires token)

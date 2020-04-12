@@ -9,15 +9,17 @@
 * Updated docs
 * Hardened the docker image
 * Replaced static docker image with Dockerfile build
+* Added container/exec time-outs
+* Implemented setup code
+* Add Done parameter to JSON response
+* Implement proper polling
 
 ### To-do
 
-* Implement container/exec time-outs
 * Improve logging (container stats to CSV)
 * Add SLOC and execution time in response JSON
-* Implement setup code
-* Implement proper polling
-* Add Done parameter to JSON response
+* Test all endpoints and fix remaining bugs
+* Improve performance as polling is cripplingly slow (on my end atleast).
 
 # [0.2.0](08219ee4d43e4e844ef0ef2e466acd3097a078b1) (2020.03.11)
 
