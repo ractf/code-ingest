@@ -1,6 +1,6 @@
 # Change Log
 
-# [0.3.0](REPLACEME) (2020.03.30)
+# [0.3.0](35842fe3e47c04ab715dbb2dac0e96622e0c38d1) (2020.03.30)
 
 ### Features
 
