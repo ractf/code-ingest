@@ -26,8 +26,8 @@ It is assumed the environment variables supplied will be in the correct format.
 
 Under the :code:`tests/` directory, you can also find :code:`functionality_check.py` which can be used to test
 the server out in a hurry. It's poorly written but allows you to access the features. If you've
-installed this from pypi, just swap the filename with the :code:`ingest_tests` command, which should be
-available to you if pip has setup your :code:`PATH` correctly.
+installed this using poetry venv and you're in the :code:`poetry shell`, just swap the filename with the :code:`ingest_tests`
+command, which should be available to you if poetry has setup your :code:`PATH` correctly.
 
 Run a basic functionality test of all the endpoints:
 
@@ -184,6 +184,20 @@ The returned JSON will have a :code:`token` parameter with the container token.
 ******************************************************************************
 
 Runs java code with OpenJDK 11.0.5.
+
+**Java programs have to have files and classes named in a certain way!**
+
+The file name will be called :code:`program.java` and hence there needs to be a class
+in the submitted code called :code:`Program` with a :code:`main` method. This is essential
+or else the code will not run!
+
+Here's an example 'Hello, world!' program for demonstration:
+
+:code:`public class Program {public static void main(String[] args) {System.out.println("Hello, World!");}}`
+
+How this class is generated is up to the backend/frontend user, though I will suggest using a template with
+this class for the frontend where this code is automatically inserted when the user selects Java for the
+language to use.
 
 Success data:
 

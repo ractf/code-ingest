@@ -1,5 +1,22 @@
 # Change Log
 
+# [0.4.0](CHANGEME) (2020.03.30)
+
+### Features
+
+* Updated documentation
+* Updated readme
+
+### Future features
+
+* Improve logging (container stats to CSV)
+* Add SLOC and execution time in response JSON
+* Attempt to improve polling performance/refactor code
+
+### Done
+
+* Tested all endpoints and fixed most of the bugs
+
 # [0.3.0](35842fe3e47c04ab715dbb2dac0e96622e0c38d1) (2020.03.30)
 
 ### Features
