@@ -11,6 +11,8 @@ It's written to meet a specific set of requirements and work in conjunction with
 - python 3.7 or above with pip
 - pyenv installed (optional)
 - poetry installed
+- Linux distro, ideally something debian based
+- docker [installed](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04) on host
 
 If you don't have the required python version, install [pyenv](https://github.com/pyenv/pyenv#basic-github-checkout) with basic checkout.
 Then install the build dependencies, which is listed on the [wiki](https://github.com/pyenv/pyenv/wiki)
@@ -49,6 +51,8 @@ poetry install --no-dev
 poetry shell
 
 # <Set your environment variables here>
+# Remove any stray docker images
+docker rmi sh3llcod3/code-ingest
 ingest_server
 
 # If you're interested in making changes.
