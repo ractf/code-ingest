@@ -51,8 +51,8 @@ poetry install --no-dev
 poetry shell
 
 # <Set your environment variables here>
-# Remove any stray docker images
-docker rmi sh3llcod3/code-ingest
+# Remove the docker image every time you want it to be rebuilt.
+docker rmi sh3llcod3/code-ingest # If you've not deployed in a while.
 ingest_server
 
 # If you're interested in making changes.
