@@ -9,7 +9,7 @@ repository = "https://gitlab.com/ractf/code-ingest"
 homepage = "https://gitlab.com/ractf/code-ingest"
 
 classifiers = [
-  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
   "License :: OSI Approved :: GNU Affero General Public License v3",
   "Topic :: Internet :: WWW/HTTP :: WSGI",
   "Environment :: Web Environment",
