@@ -8,13 +8,13 @@ It's written to meet a specific set of requirements and work in conjunction with
 
 ## Prerequsites & Setup
 
-- python 3.7 or above with pip
-- pyenv installed (optional)
-- poetry installed
-- Linux distro, ideally something debian based
-- docker [installed](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04) on host
+- Python 3.8.2 or above with pip
+- Pyenv installed (optional)
+- Poetry installed
+- Linux distro, ideally something Debian/Ubuntu based
+- Docker [installed](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04) on host
 
-If you don't have the required python version, install [pyenv](https://github.com/pyenv/pyenv#basic-github-checkout) with basic checkout.
+If you don't have the required python version (3.8.2 as of writing), install [pyenv](https://github.com/pyenv/pyenv#basic-github-checkout) with basic checkout.
 Then install the build dependencies, which is listed on the [wiki](https://github.com/pyenv/pyenv/wiki)
 
 Add the following lines to your `~/.bashrc` file (assuming you haven't done so from the pyenv guide):
@@ -36,7 +36,7 @@ Next, install [poetry](https://python-poetry.org/docs/) with their suggested way
 ```bash
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ```
-**Note**: Poetry requires python2, so make sure you have that installed.
+**Note**: Poetry requires `python` so if you don't have Python2 you can soft link python3: `sudo ln -sf $(which python3) /usr/local/bin/python`
 
 ## Installation & Deployment
 
