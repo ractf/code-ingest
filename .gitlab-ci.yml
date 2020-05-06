@@ -10,4 +10,4 @@ flake8:
   stage: Lint
   script:
     - flake8
-    - mypy
+    - mypy --ignore-missing-imports
