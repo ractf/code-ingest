@@ -28,7 +28,7 @@ if [[ -z "$VIRTUAL_ENV" ]]; then
 fi
 ```
 
-If you have a different shell, follow the pyenv install guide. Pyenv isn't mandatory. If you have `python 3.7` or above,
+If you have a different shell, follow the pyenv install guide. Pyenv isn't mandatory. If you have `python 3.8.2` or above,
 you should be fine.
 
 Next, install [poetry](https://python-poetry.org/docs/) with their suggested way, as this is necessary for the installation.
