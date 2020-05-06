@@ -5,14 +5,9 @@ before_script:
 
 stages:
   - Lint
-  - Mypy
 
 flake8:
   stage: Lint
   script:
     - flake8
-
-mypy:
-  stage: Mypy
-  script:
     - mypy
