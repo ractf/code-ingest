@@ -128,7 +128,7 @@ class DockerPipeline():
                 remove=self.container_config['auto_remove'],
                 volumes={
                     cf.name: {'bind': f'/home/ractf/{ext}', 'mode': 'ro'},
-                    sf.name: {'bind': f'/home/ractf/setup.sh', 'mode': 'rw'}
+                    sf.name: {'bind': '/home/ractf/setup.sh', 'mode': 'rw'}
                 },
                 mem_limit=self.container_config['mem_max'],
                 memswap_limit=self.container_config['mem_max'],

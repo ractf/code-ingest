@@ -126,7 +126,7 @@ def parallel_test(the_codes) -> None:
 # 2000-thread stress test
 def stress_test(the_codes) -> None:
     print(f"\n{'-'*28}Running {STRESS_THREADS_MAX}-thread test{'-'*28}")
-    print(f"Botters: Before you ask, my 20k bogomips machine cannot handle 200 threads.")
+    print("Botters: Before you ask, my 20k bogomips machine cannot handle 200 threads.")
     for _ in range(STRESS_THREADS_MAX):
         threading.Thread(target=_run_code, args=(random.choice(list(the_codes)),)).start()  # noqa: S311
 
@@ -140,7 +140,7 @@ def run_tests() -> None:
     elif len(argv) > 1 and argv[1] == "-i":
         while True:
             try:
-                c_int = input(f"Enter endpoint (e.g. python, gcc, etc) >> ")  # noqa: S322
+                c_int = input("Enter endpoint (e.g. python, gcc, etc) >> ")  # noqa: S322
                 c_code = input(f"Enter {c_int} code >> ")  # noqa: S322
                 c_chall = input("Enter challenge number, default is 0 >> ")  # noqa: S322
                 c_poll = True if input("Display polling? y/n >> ").lower().startswith("y") else False  # noqa: S322
