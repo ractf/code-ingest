@@ -18,7 +18,7 @@ from base64 import b64decode, b64encode
 from binascii import Error
 from json.decoder import JSONDecodeError
 from os import environ
-from secrets import token_hex
+from secrets import compare_digest, token_hex
 from typing import List, Union
 
 from starlette.applications import Starlette
@@ -141,7 +141,7 @@ async def admin_functions(request) -> JSONResponse:
         token = params.get('token', None)
         container = params.get('container', None)
 
-        if token is not None and token == ADM_TOKEN:
+        if token is not None and compare_digest(token, ADM_TOKEN):
             do_act = act_map.get(act, None)
 
             if do_act is not None:
