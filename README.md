@@ -8,13 +8,13 @@ It's written to meet a specific set of requirements and work in conjunction with
 
 ## Prerequsites & Setup
 
-- Python 3.8.2 or above with pip
+- Python 3.9.0 or above with pip
 - Pyenv installed (optional)
 - Poetry installed
 - Linux distro, ideally something Debian/Ubuntu based
-- Docker [installed](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04) on host
+- Docker [installed](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04) on host
 
-If you don't have the required python version (3.8.2 as of writing), install [pyenv](https://github.com/pyenv/pyenv#basic-github-checkout) with basic checkout.
+If you don't have the required python version (3.9.0 as of writing), install [pyenv](https://github.com/pyenv/pyenv#basic-github-checkout) with basic checkout.
 Then install the build dependencies, which is listed on the [wiki](https://github.com/pyenv/pyenv/wiki)
 
 Add the following lines to your `~/.bashrc` file (assuming you haven't done so from the pyenv guide):
@@ -28,15 +28,14 @@ if [[ -z "$VIRTUAL_ENV" ]]; then
 fi
 ```
 
-If you have a different shell, follow the pyenv install guide. Pyenv isn't mandatory. If you have `python 3.8.2` or above,
-you should be fine.
+If you have a different shell, follow the pyenv install guide. Pyenv isn't mandatory if you have the correct version.
 
 Next, install [poetry](https://python-poetry.org/docs/) with their suggested way, as this is necessary for the installation.
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ```
-**Note**: Poetry requires `python` so if you don't have Python2 you can soft link python3: `sudo ln -sf $(which python3) /usr/local/bin/python`
+**Note**: Poetry requires `python` so if you don't have `python2` you can soft link `python3`: `sudo ln -sf $(which python3) /usr/local/bin/python`
 
 ## Installation & Deployment
 
