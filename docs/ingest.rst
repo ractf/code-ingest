@@ -109,7 +109,7 @@ infinite polling is also recommended.
                                    POST /python
 ******************************************************************************
 
-Run code with python 3.8.2 and return execution result.
+Run code with python 3.9.0 and return execution result.
 
 Success data:
 
@@ -128,7 +128,7 @@ The returned JSON will have a :code:`token` parameter with the container token.
                                    POST /gcc
 ******************************************************************************
 
-Compile code with GCC-9.2 and return execution result.
+Compile code with GCC and return execution result.
 
 Success data:
 
@@ -147,7 +147,7 @@ The returned JSON will have a :code:`token` parameter with the container token.
                                    POST /cpp
 ******************************************************************************
 
-Compile code with G++-9.2 and return execution result.
+Compile code with G++ and return execution result.
 
 Success data:
 
@@ -165,7 +165,7 @@ The returned JSON will have a :code:`token` parameter with the container token.
                                    POST /perl
 ******************************************************************************
 
-Runs code with the Perl 5 v30.1 Interpreter.
+Runs code with the Perl 5 Interpreter.
 
 Success data:
 
@@ -183,7 +183,7 @@ The returned JSON will have a :code:`token` parameter with the container token.
                                    POST /java
 ******************************************************************************
 
-Runs java code with OpenJDK 11.0.5.
+Runs java code with OpenJDK 11.
 
 **Java programs have to have files and classes named in a certain way!**
 
@@ -215,7 +215,7 @@ The returned JSON will have a :code:`token` parameter with the container token.
                                    POST /ruby
 ******************************************************************************
 
-Runs code with Ruby 2.6.5p114 interpreter.
+Runs code with Ruby interpreter.
 
 Success data:
 
@@ -233,7 +233,7 @@ The returned JSON will have a :code:`token` parameter with the container token.
                                    POST /node
 ******************************************************************************
 
-Runs code with NodeJS v12.15.0.
+Runs code with NodeJS.
 
 Success data:
 
@@ -251,7 +251,7 @@ The returned JSON will have a :code:`token` parameter with the container token.
                                    POST /nasm
 ******************************************************************************
 
-Assembles code with NASM 2.14.02 and runs the resulting binary.
+Assembles code with NASM and runs the resulting binary.
 
 The resulting binary will be 64-bit to keep the image size down (by not installing the
 ia32-libs). Thus the user can utilise 64-bit registers when writing their assembly.
