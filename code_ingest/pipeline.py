@@ -19,6 +19,7 @@ import tarfile
 import threading
 from base64 import b64encode
 from binascii import Error
+from distutils.dir_util import copy_tree
 from io import BytesIO
 from os import walk
 from pathlib import Path
@@ -38,6 +39,8 @@ class DockerPipeline():
         self.result_dict = {}
         self.setup_dir = {}
         self.base_dir = Path(gettempdir()) / "ingest_server"
+        self.inst_path = Path(__file__).parent
+        self.req_dir: Path = Path("./setup-code")
 
         if not self.base_dir.exists():
             self.base_dir.mkdir()
@@ -50,7 +53,7 @@ class DockerPipeline():
             logging.info("Image not found or image changed, will build now, please wait.")
             logging.info("This will only happen once, but may take a few minutes.")
             self.docker_client.images.build(
-                path=str(Path("./docker-build")),
+                path=str(self.inst_path.parent / "docker-build"),
                 tag=f"{self.container_config.get('image_name', img_name)}:latest",
                 rm=True
             )
@@ -79,7 +82,15 @@ class DockerPipeline():
         container_dst.put_archive(dst, in_mem_tarfile.getvalue())
 
     async def _build_map(self) -> None:
-        path, dirs, files = next(walk(Path("./setup-code")))
+
+        if not self.req_dir.exists():
+            src_dir = self.inst_path.parent / "setup-code"
+            self.req_dir.mkdir()
+            copy_tree(str(src_dir), str(self.req_dir))
+            logging.info("Creating setup-code directory in working dir.")
+
+        path, dirs, files = next(walk(self.req_dir))
+
         for i in enumerate(files):
             self.setup_dir[str(i[0])] = i[1]
 
@@ -113,7 +124,7 @@ class DockerPipeline():
             cf = NamedTemporaryFile(dir=str(self.base_dir), delete=False)
 
             code_dir = self.setup_dir.get(setup_code, "0blank.sh")
-            with open(str(Path("./setup-code") / code_dir), "r") as s_code:
+            with open(str(self.req_dir / code_dir), "r") as s_code:
                 sf.write(s_code.read().encode())
                 sf.flush()
 
