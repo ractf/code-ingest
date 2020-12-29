@@ -5,8 +5,8 @@ description = "The sort of CI server you're happy to let people throw crap at!"
 authors = ["RACTF Contributors"]
 license = "AGPL-3.0-only"
 readme = "README.md"
-repository = "https://gitlab.com/ractf/code-ingest"
-homepage = "https://gitlab.com/ractf/code-ingest"
+repository = "https://github.com/ractf/code-ingest"
+homepage = "https://github.com/ractf/code-ingest"
 
 classifiers = [
   "Programming Language :: Python :: 3.9",
@@ -26,9 +26,9 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-starlette = "^0.13.8"
-uvicorn = "^0.12.2"
-docker = "^4.3.1"
+starlette = "*"
+uvicorn = "*"
+docker = "*"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"
