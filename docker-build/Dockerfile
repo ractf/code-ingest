@@ -14,6 +14,7 @@ RUN rm -rf /var/spool/cron /etc/crontabs /etc/periodic
 RUN find /sbin /usr/sbin ! -type d -a ! -name login_duo -a ! -name nologin -a ! -name setup-proxy -a ! -name sshd -a ! -name start.sh -delete
 
 # Make any directory aside from the user's home dir non-writable. This breaks apps that write to /tmp
+# Uncomment if needed for greater isolation.
 # RUN find / -xdev -type d -perm +0002 -exec chmod o-w {} +
 # RUN find / -xdev -type f -perm +0002 -exec chmod o-w {} +
 
