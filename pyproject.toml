@@ -21,7 +21,8 @@ classifiers = [
 
 include = [
   "docker-build/*",
-  "setup-code/*"
+  "setup-code/*",
+  "tests/*"
 ]
 
 [tool.poetry.dependencies]
