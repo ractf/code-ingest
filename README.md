@@ -41,6 +41,8 @@ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poet
 
 Clone the repo and change directory into it:
 
+> Beta builds are available from PyPi, just do `python3 -m pip install code-ingest`
+
 ```bash
 git clone https://gitlab.com/ractf/code-ingest.git
 cd code-ingest
