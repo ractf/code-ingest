@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "code-ingest"
-version = "0.6.0"
+version = "0.7.0"
 description = "This runs code in a time-limited, offline docker container and returns the results."
 authors = ["RACTF Contributors"]
 license = "AGPL-3.0-only"
