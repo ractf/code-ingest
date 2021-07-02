@@ -8,13 +8,13 @@ It's written to meet a specific set of requirements and work in conjunction with
 
 ## Prerequsites & Setup
 
-- Python 3.9.1 or above with pip
+- Python 3.9.5 or above with pip
 - Pyenv installed (optional)
 - Poetry installed
 - Linux distro, ideally something Debian/Ubuntu based
 - Docker [installed](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04) on host
 
-If you don't have the required python version (3.9.1 as of writing), install [pyenv](https://github.com/pyenv/pyenv#basic-github-checkout) with basic checkout.
+If you don't have the required python version (3.9.5 as of writing), install [pyenv](https://github.com/pyenv/pyenv#basic-github-checkout) with basic checkout.
 Then install the build dependencies, which is listed on the [wiki](https://github.com/pyenv/pyenv/wiki)
 
 Add the following lines to your `~/.bashrc` file (assuming you haven't done so from the pyenv guide):
@@ -23,8 +23,9 @@ Add the following lines to your `~/.bashrc` file (assuming you haven't done so f
 # Pyenv installation
 
 if [[ -z "$VIRTUAL_ENV" ]]; then
-    export PATH="$HOME/.pyenv/bin:$PATH"
-    eval "$(pyenv init -)"
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init --path)"
 fi
 ```
 
