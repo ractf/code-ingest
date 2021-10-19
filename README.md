@@ -8,13 +8,13 @@ It's written to meet a specific set of requirements and work in conjunction with
 
 ## Prerequsites & Setup
 
-- Python 3.9.5 or above with pip
+- Python 3.8 or above with pip
 - Pyenv installed (optional)
 - Poetry installed
-- Linux distro, ideally something Debian/Ubuntu based
+- Debian/Ubuntu Desktop/Server
 - Docker [installed](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04) on host
 
-If you don't have the required python version (3.9.5 as of writing), install [pyenv](https://github.com/pyenv/pyenv#basic-github-checkout) with basic checkout.
+If you don't have the required python version (3.9.7 as of writing), install [pyenv](https://github.com/pyenv/pyenv#basic-github-checkout) with basic checkout.
 Then install the build dependencies, which is listed on the [wiki](https://github.com/pyenv/pyenv/wiki)
 
 Add the following lines to your `~/.bashrc` file (assuming you haven't done so from the pyenv guide):
@@ -52,29 +52,21 @@ Alternatively if you want to install inside an env:
 git clone https://gitlab.com/ractf/code-ingest.git
 cd code-ingest
 
-# If you're deploying for production.
+# If you're deploying for real use.
 poetry install --no-dev
 poetry shell
 
 # <Set your environment variables here>
 # Remove the docker image every time you want it to be rebuilt.
-docker rmi sh3llcod3/code-ingest # If you've not deployed in a while.
+docker rmi sh3llcod3/code-ingest
 ingest_server
 
-# If you're interested in making changes.
+# If you're interested in editing the program
 poetry install
 poetry shell
 python -m code_ingest
 ```
 
-You should be able to use any virtualenv realistically.
+You should be able to use any virtualenv.
 
 The full documentation of environment variables, endpoints, etc can be found in the [docs](docs/ingest.rst)
-
-## Issues
-
-If you encounter a bug, please create an issue stating with as much possible detail:
-
-- Your set-up
-- The bug
-- Any steps taken
